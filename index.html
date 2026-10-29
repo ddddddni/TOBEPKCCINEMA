@@ -7,7 +7,6 @@
 <meta name="theme-color" content="#000000">
 <title>TO BE CINEMA - โปรแกรมฉาย</title>
 <style>
-  /* ฟอนต์ของแต่ละเครื่อง: Apple ใช้ SF / Thonburi, Android/Windows ใช้ระบบเดิม */
   :root {
     --font-ui: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Thonburi",
                "Noto Sans Thai", "Sarabun", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
@@ -206,7 +205,7 @@
 </head>
 <body>
 
-<video class="bg-video" id="bgVideo" autoplay muted loop playsinline preload="auto" poster="">
+<video class="bg-video" id="bgVideo" autoplay muted loop playsinline preload="auto">
   <source src="video/background.mp4" type="video/mp4">
 </video>
 <div class="bg-overlay"></div>
@@ -226,39 +225,39 @@
 
 <script>
   // ===== ตั้งค่า =====
-  const VIDEO_SRC = "video/background.mp4";   // ไฟล์วิดีโอพื้นหลัง
-  const POSTER_DIR = "poster/";               // โฟลเดอร์โปสเตอร์ใน repo
-  const POSTER_EXT = ".jpeg";                 // นามสกุลจริงของไฟล์ (ตามที่ใช้ใน repo)
+  const VIDEO_SRC  = "video/background.mp4";  // วิดีโอพื้นหลัง
+  const POSTER_DIR = "poster/";              // โฟลเดอร์โปสเตอร์
+  const POSTER_EXT = ".jpg";                 // นามสกุลไฟล์โปสเตอร์ (1.jpg ถึง 8.jpg)
 
   // ===== ข้อมูลหนัง =====
-  // poster = เลขไฟล์โปสเตอร์ (1–8) ระบบจะต่อเป็น poster/1.jpg.jpeg ให้เอง
+  // poster = เลขไฟล์โปสเตอร์ (1–8) ระบบจะต่อเป็น poster/1.jpg ให้เอง
   const schedule = [
     {
       date: "2026-10-30", label: "30 ต.ค.", dateText: "วันศุกร์ 30 ตุลาคม 2569",
       movies: [
-        { title: "โปรแกรมหน้าวิญญาณอาฆาต", poster: "1.jpg", minutes: 95,  age: "น 16+", lang: "TH/-", quality: "HD /1080p", times: ["10:30"] },
-        { title: "ห้าแพร่ง",               poster: "2.jpg", minutes: 125, age: "น 16+", lang: "TH/-", quality: "HD /1080p", times: ["14:30"] }
+        { title: "โปรแกรมหน้าวิญญาณอาฆาต", poster: "1", minutes: 95,  age: "น 16+", lang: "TH/-", quality: "HD /1080p", times: ["10:30"] },
+        { title: "ห้าแพร่ง",               poster: "2", minutes: 125, age: "น 16+", lang: "TH/-", quality: "HD /1080p", times: ["14:30"] }
       ]
     },
     {
       date: "2026-11-02", label: "2 พ.ย.", dateText: "วันจันทร์ 2 พฤศจิกายน 2569",
       movies: [
-        { title: "ข้างบ้าน",    poster: "3.jpg", minutes: 120, age: "น 18+", lang: "TH/-", quality: "HD /1080p", times: ["10:30"] },
-        { title: "ลัดดาแลนด์", poster: "4.jpg", minutes: 125, age: "น 18+", lang: "TH/-", quality: "HD /1080p", times: ["14:30"] }
+        { title: "ข้างบ้าน",    poster: "3", minutes: 120, age: "น 18+", lang: "TH/-", quality: "HD /1080p", times: ["10:30"] },
+        { title: "ลัดดาแลนด์", poster: "4", minutes: 125, age: "น 18+", lang: "TH/-", quality: "HD /1080p", times: ["14:30"] }
       ]
     },
     {
       date: "2026-11-03", label: "3 พ.ย.", dateText: "วันอังคาร 3 พฤศจิกายน 2569",
       movies: [
-        { title: "ร่างทรง",              poster: "5.jpg", minutes: 131, age: "น 18+", lang: "TH/-", quality: "HD /1080p", times: ["10:30"] },
-        { title: "ชัตเตอร์ กดติดวิญญาณ", poster: "6.jpg", minutes: 97,  age: "น 13+", lang: "TH/-", quality: "HD /1080p", times: ["14:30"] }
+        { title: "ร่างทรง",              poster: "5", minutes: 131, age: "น 18+", lang: "TH/-", quality: "HD /1080p", times: ["10:30"] },
+        { title: "ชัตเตอร์ กดติดวิญญาณ", poster: "6", minutes: 97,  age: "น 13+", lang: "TH/-", quality: "HD /1080p", times: ["14:30"] }
       ]
     },
     {
       date: "2026-11-04", label: "4 พ.ย.", dateText: "วันพุธ 4 พฤศจิกายน 2569",
       movies: [
-        { title: "บอดี้ศพ#19",  poster: "7.jpg", minutes: 125, age: "น 16+", lang: "TH/-", quality: "HD /1080p", times: ["10:30"] },
-        { title: "TERRIFIER 3", poster: "8.jpg", minutes: 85,  age: "น 20+", lang: "TH/-", quality: "HD /1080p", times: ["14:30"] }
+        { title: "บอดี้ศพ#19",  poster: "7", minutes: 125, age: "น 16+", lang: "TH/-", quality: "HD /1080p", times: ["10:30"] },
+        { title: "TERRIFIER 3", poster: "8", minutes: 85,  age: "น 20+", lang: "TH/-", quality: "HD /1080p", times: ["14:30"] }
       ]
     }
   ];
@@ -269,15 +268,13 @@
   const bgVideo = document.getElementById("bgVideo");
 
   // ถ้าวิดีโอโหลดไม่ได้ ซ่อนไว้ (พื้นหลังดำยังใช้งานได้)
-  bgVideo.querySelector("source").src = VIDEO_SRC;
-  bgVideo.addEventListener("error", () => bgVideo.style.display = "none", true);
-  bgVideo.load();
+  bgVideo.addEventListener("error", () => { bgVideo.style.display = "none"; }, true);
 
-  // โปสเตอร์ที่โหลดไม่ได้ ให้แสดงกรอบเทาแทน
+  // โปสเตอร์: ถ้าโหลดไม่ได้ จะคงกรอบเทาไว้ ไม่ลบทิ้ง
   function posterHTML(file, title) {
     return `<div class="poster-wrap"><img class="poster" src="${POSTER_DIR}${file}${POSTER_EXT}"
               alt="${title}" loading="lazy" decoding="async"
-              onerror="this.parentNode.style.background='#222'; this.remove();"></div>`;
+              onerror="this.style.display='none'; this.parentNode.style.background='#222';"></div>`;
   }
 
   function render(index) {
