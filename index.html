@@ -2,16 +2,53 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#000000">
 <title>TO BE CINEMA - โปรแกรมฉาย</title>
-<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
+  /* ฟอนต์ของแต่ละเครื่อง: Apple ใช้ SF / Thonburi, Android/Windows ใช้ระบบเดิม */
+  :root {
+    --font-ui: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Thonburi",
+               "Noto Sans Thai", "Sarabun", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --accent-1: #1b8c84;
+    --accent-2: #2fb3c4;
+    --time-color: #2a9d8f;
+  }
+
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: 'Sarabun', sans-serif;
+
+  html, body {
+    height: 100%;
     background: #000;
     color: #fff;
-    min-height: 100vh;
+    font-family: var(--font-ui);
+    -webkit-font-smoothing: antialiased;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body { min-height: 100dvh; position: relative; overflow-x: hidden; }
+
+  /* ---------- วิดีโอพื้นหลัง ---------- */
+  .bg-video {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: -2;
+    opacity: 0.35;
+    pointer-events: none;
+  }
+  .bg-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(rgba(0,0,0,.6), rgba(0,0,0,.92));
+    pointer-events: none;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .bg-video { display: none; }
   }
 
   /* ---------- Header ---------- */
@@ -19,21 +56,19 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 12px 16px;
-    background: #000;
+    gap: 10px;
+    padding: calc(env(safe-area-inset-top) + 10px) max(14px, env(safe-area-inset-right)) 10px max(14px, env(safe-area-inset-left));
   }
-  .logo {
-    text-align: center;
-    line-height: 1;
-  }
+  .logo { text-align: center; line-height: 1; flex: 0 0 auto; }
   .logo .top {
-    font-size: 30px;
+    display: block;
+    font-size: clamp(22px, 6vw, 30px);
     font-weight: 700;
     letter-spacing: 2px;
   }
   .logo .bottom {
     display: block;
-    font-size: 20px;
+    font-size: clamp(14px, 4vw, 20px);
     font-weight: 600;
     border-top: 2px solid #fff;
     margin-top: 4px;
@@ -42,15 +77,18 @@
   }
   .title-box {
     flex: 1;
-    margin: 0 14px;
-    padding: 10px 0;
+    min-width: 0;
+    padding: 10px 6px;
     text-align: center;
-    font-size: 40px;
+    font-size: clamp(22px, 7vw, 40px);
     font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
     border-radius: 14px;
-    background: linear-gradient(90deg, #1b8c84, #2fb3c4);
-    box-shadow: 0 0 12px rgba(47, 179, 196, 0.5);
-    text-shadow: 0 2px 4px rgba(0,0,0,0.4);
+    background: linear-gradient(90deg, var(--accent-1), var(--accent-2));
+    box-shadow: 0 0 12px rgba(47,179,196,.5);
+    text-shadow: 0 2px 4px rgba(0,0,0,.4);
   }
   .menu-btn {
     background: none;
@@ -60,120 +98,118 @@
     flex-direction: column;
     gap: 9px;
     padding: 6px;
+    flex: 0 0 auto;
   }
-  .menu-btn span {
-    display: block;
-    width: 38px;
-    height: 4px;
-    background: #fff;
-    border-radius: 2px;
-  }
+  .menu-btn span { display: block; width: 36px; height: 4px; background: #fff; border-radius: 2px; }
 
-  /* ---------- Day tabs ---------- */
+  /* ---------- แท็บวัน ---------- */
   .tabs {
     display: flex;
     gap: 4px;
-    padding: 6px 4px;
+    padding: 6px max(4px, env(safe-area-inset-right)) 6px max(4px, env(safe-area-inset-left));
     background: #fff;
     overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
   }
   .tabs::-webkit-scrollbar { display: none; }
   .tab {
-    flex: 0 0 auto;
-    min-width: 110px;
-    padding: 12px 10px;
+    flex: 1 0 auto;
+    min-width: 96px;
+    padding: 10px 8px;
     text-align: center;
-    font-size: 20px;
+    font: inherit;
+    font-size: clamp(16px, 4.5vw, 20px);
     font-weight: 700;
     color: #fff;
-    background: linear-gradient(90deg, #1b8c84, #2fb3c4);
+    background: linear-gradient(90deg, var(--accent-1), var(--accent-2));
     border: none;
     border-radius: 4px;
     cursor: pointer;
-    opacity: 0.7;
+    opacity: .7;
     transition: opacity .2s;
-    font-family: inherit;
   }
   .tab.active { opacity: 1; box-shadow: inset 0 -4px 0 #fff; }
-  .tab small { display: block; font-size: 14px; font-weight: 400; }
+  .tab small { display: block; font-size: .7em; font-weight: 400; }
 
   .date-bar {
-    padding: 10px 14px;
-    font-size: 18px;
+    padding: 10px max(14px, env(safe-area-inset-right)) 10px max(14px, env(safe-area-inset-left));
+    font-size: clamp(14px, 4vw, 18px);
     font-weight: 700;
     background: linear-gradient(#555, #222);
     border-top: 2px solid #ccc;
     border-bottom: 2px solid #ccc;
   }
 
-  /* ---------- Movie list ---------- */
-  .movies { padding: 16px 12px 40px; }
+  /* ---------- รายการหนัง ---------- */
+  .movies {
+    padding: 14px max(12px, env(safe-area-inset-right)) calc(40px + env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
+    max-width: 900px;
+    margin: 0 auto;
+  }
   .movie {
     display: flex;
-    gap: 16px;
+    gap: clamp(10px, 3vw, 16px);
     padding: 16px 0;
-    border-bottom: 1px solid #222;
+    border-bottom: 1px solid rgba(255,255,255,.12);
   }
-  .poster {
-    flex: 0 0 140px;
-    height: 200px;
-    border: 3px solid;
-    border-image: linear-gradient(#4aa3d6, #8ee07a) 1;
-    object-fit: cover;
-    background: #111;
+  .poster-wrap {
+    flex: 0 0 clamp(96px, 32vw, 140px);
+    aspect-ratio: 7 / 10;
+    border: 3px solid transparent;
+    border-radius: 4px;
+    background: linear-gradient(#111,#111) padding-box,
+                linear-gradient(#4aa3d6, #8ee07a) border-box;
+    overflow: hidden;
   }
+  .poster { width: 100%; height: 100%; object-fit: cover; display: block; }
   .info { flex: 1; min-width: 0; }
   .info h2 {
-    font-size: 24px;
+    font-size: clamp(18px, 5vw, 24px);
     font-weight: 700;
     margin-bottom: 6px;
+    overflow-wrap: anywhere;
   }
   .theater {
-    font-size: 13px;
+    font-size: clamp(11px, 3vw, 13px);
     color: #ccc;
     margin-bottom: 12px;
+    line-height: 1.5;
   }
-  .badges {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-bottom: 12px;
-  }
+  .badges { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
   .badge {
-    padding: 5px 14px;
-    font-size: 14px;
+    padding: 4px 12px;
+    font-size: clamp(12px, 3.4vw, 14px);
     font-weight: 600;
     color: #fff;
-    background: #1b8c84;
+    background: var(--accent-1);
     border-radius: 20px;
+    white-space: nowrap;
   }
-  .badge.age { background: #1b8c84; }
   .showtimes { display: flex; flex-wrap: wrap; gap: 8px; }
   .time {
-    padding: 8px 18px;
-    font-size: 20px;
+    padding: 6px 16px;
+    font-size: clamp(16px, 4.5vw, 20px);
     font-weight: 700;
-    color: #2a9d8f;
+    color: var(--time-color);
     background: #fff;
     border-radius: 8px;
+    font-variant-numeric: tabular-nums;
   }
+  .empty { text-align: center; padding: 60px 20px; color: #888; font-size: 18px; }
 
-  .empty {
-    text-align: center;
-    padding: 60px 20px;
-    color: #888;
-    font-size: 18px;
-  }
-
-  @media (max-width: 480px) {
-    .title-box { font-size: 30px; }
-    .poster { flex: 0 0 110px; height: 160px; }
-    .info h2 { font-size: 20px; }
+  @media (max-width: 380px) {
+    .movie { flex-direction: column; }
+    .poster-wrap { flex: none; width: 100%; max-width: 220px; margin: 0 auto; }
   }
 </style>
 </head>
 <body>
+
+<video class="bg-video" id="bgVideo" autoplay muted loop playsinline preload="auto" poster="">
+  <source src="video/background.mp4" type="video/mp4">
+</video>
+<div class="bg-overlay"></div>
 
 <header>
   <div class="logo">
@@ -181,53 +217,48 @@
     <span class="bottom">CINEMA</span>
   </div>
   <div class="title-box">โปรแกรมฉาย</div>
-  <button class="menu-btn" aria-label="เมนู">
-    <span></span><span></span><span></span>
-  </button>
+  <button class="menu-btn" aria-label="เมนู"><span></span><span></span><span></span></button>
 </header>
 
-<nav class="tabs" id="tabs"></nav>
+<nav class="tabs" id="tabs" role="tablist"></nav>
 <div class="date-bar" id="dateBar"></div>
 <main class="movies" id="movies"></main>
 
 <script>
+  // ===== ตั้งค่า =====
+  const VIDEO_SRC = "video/background.mp4";   // ไฟล์วิดีโอพื้นหลัง
+  const POSTER_DIR = "poster/";               // โฟลเดอร์โปสเตอร์ใน repo
+  const POSTER_EXT = ".jpeg";                 // นามสกุลจริงของไฟล์ (ตามที่ใช้ใน repo)
+
   // ===== ข้อมูลหนัง =====
-  // poster = ชื่อไฟล์โปสเตอร์ในโฟลเดอร์ posters/
+  // poster = เลขไฟล์โปสเตอร์ (1–8) ระบบจะต่อเป็น poster/1.jpg.jpeg ให้เอง
   const schedule = [
     {
-      date: "2026-10-30",
-      label: "30 ต.ค.",
-      dateText: "วันศุกร์ 30 ตุลาคม 2569",
+      date: "2026-10-30", label: "30 ต.ค.", dateText: "วันศุกร์ 30 ตุลาคม 2569",
       movies: [
-        { title: "โปรแกรมหน้าวิญญาณอาฆาต", poster: "posters/1.jpg", minutes: 95, age: "น 16+", lang: "TH/-", quality: "HD /1080p", times: ["10:30"] },
-        { title: "ห้าแพร่ง", poster: "posters/2.jpg", minutes: 125, age: "น 16+", lang: "TH/-", quality: "HD /1080p", times: ["14:30"] }
+        { title: "โปรแกรมหน้าวิญญาณอาฆาต", poster: "1.jpg", minutes: 95,  age: "น 16+", lang: "TH/-", quality: "HD /1080p", times: ["10:30"] },
+        { title: "ห้าแพร่ง",               poster: "2.jpg", minutes: 125, age: "น 16+", lang: "TH/-", quality: "HD /1080p", times: ["14:30"] }
       ]
     },
     {
-      date: "2026-11-02",
-      label: "2 พ.ย.",
-      dateText: "วันจันทร์ 2 พฤศจิกายน 2569",
+      date: "2026-11-02", label: "2 พ.ย.", dateText: "วันจันทร์ 2 พฤศจิกายน 2569",
       movies: [
-        { title: "ข้างบ้าน", poster: "posters/3.jpg", minutes: 120, age: "น 18+", lang: "TH/-", quality: "HD /1080p", times: ["10:30"] },
-        { title: "ลัดดาแลนด์", poster: "posters/4.jpg", minutes: 125, age: "น 18+", lang: "TH/-", quality: "HD /1080p", times: ["14:30"] }
+        { title: "ข้างบ้าน",    poster: "3.jpg", minutes: 120, age: "น 18+", lang: "TH/-", quality: "HD /1080p", times: ["10:30"] },
+        { title: "ลัดดาแลนด์", poster: "4.jpg", minutes: 125, age: "น 18+", lang: "TH/-", quality: "HD /1080p", times: ["14:30"] }
       ]
     },
     {
-      date: "2026-11-03",
-      label: "3 พ.ย.",
-      dateText: "วันอังคาร 3 พฤศจิกายน 2569",
+      date: "2026-11-03", label: "3 พ.ย.", dateText: "วันอังคาร 3 พฤศจิกายน 2569",
       movies: [
-        { title: "ร่างทรง", poster: "posters/5.jpg", minutes: 131, age: "น 18+", lang: "TH/-", quality: "HD /1080p", times: ["10:30"] },
-        { title: "ชัตเตอร์ กดติดวิญญาณ", poster: "posters/6.jpg", minutes: 97, age: "น 13+", lang: "TH/-", quality: "HD /1080p", times: ["14:30"] }
+        { title: "ร่างทรง",              poster: "5.jpg", minutes: 131, age: "น 18+", lang: "TH/-", quality: "HD /1080p", times: ["10:30"] },
+        { title: "ชัตเตอร์ กดติดวิญญาณ", poster: "6.jpg", minutes: 97,  age: "น 13+", lang: "TH/-", quality: "HD /1080p", times: ["14:30"] }
       ]
     },
     {
-      date: "2026-11-04",
-      label: "4 พ.ย.",
-      dateText: "วันพุธ 4 พฤศจิกายน 2569",
+      date: "2026-11-04", label: "4 พ.ย.", dateText: "วันพุธ 4 พฤศจิกายน 2569",
       movies: [
-        { title: "บอดี้ศพ#19", poster: "posters/7.jpg", minutes: 125, age: "น 16+", lang: "TH/-", quality: "HD /1080p", times: ["10:30"] },
-        { title: "TERRIFIER 3", poster: "posters/8.jpg", minutes: 85, age: "น 20+", lang: "TH/-", quality: "HD /1080p", times: ["14:30"] }
+        { title: "บอดี้ศพ#19",  poster: "7.jpg", minutes: 125, age: "น 16+", lang: "TH/-", quality: "HD /1080p", times: ["10:30"] },
+        { title: "TERRIFIER 3", poster: "8.jpg", minutes: 85,  age: "น 20+", lang: "TH/-", quality: "HD /1080p", times: ["14:30"] }
       ]
     }
   ];
@@ -235,48 +266,57 @@
   const tabsEl = document.getElementById("tabs");
   const dateBarEl = document.getElementById("dateBar");
   const moviesEl = document.getElementById("movies");
+  const bgVideo = document.getElementById("bgVideo");
+
+  // ถ้าวิดีโอโหลดไม่ได้ ซ่อนไว้ (พื้นหลังดำยังใช้งานได้)
+  bgVideo.querySelector("source").src = VIDEO_SRC;
+  bgVideo.addEventListener("error", () => bgVideo.style.display = "none", true);
+  bgVideo.load();
+
+  // โปสเตอร์ที่โหลดไม่ได้ ให้แสดงกรอบเทาแทน
+  function posterHTML(file, title) {
+    return `<div class="poster-wrap"><img class="poster" src="${POSTER_DIR}${file}${POSTER_EXT}"
+              alt="${title}" loading="lazy" decoding="async"
+              onerror="this.parentNode.style.background='#222'; this.remove();"></div>`;
+  }
 
   function render(index) {
     const day = schedule[index];
 
-    // แท็บวัน
     tabsEl.innerHTML = "";
     schedule.forEach((d, i) => {
       const btn = document.createElement("button");
       btn.className = "tab" + (i === index ? " active" : "");
+      btn.setAttribute("role", "tab");
+      btn.setAttribute("aria-selected", i === index);
       btn.innerHTML = `${d.label}<small>${d.dateText.split(" ")[0]}</small>`;
       btn.onclick = () => render(i);
       tabsEl.appendChild(btn);
     });
 
-    // แถบวันที่
     dateBarEl.textContent = day.dateText;
-
-    // รายการหนัง
     moviesEl.innerHTML = "";
+
     if (!day.movies.length) {
       moviesEl.innerHTML = `<div class="empty">ยังไม่มีรอบฉายในวันนี้</div>`;
       return;
     }
 
     day.movies.forEach(m => {
-      const el = document.createElement("div");
+      const el = document.createElement("article");
       el.className = "movie";
       el.innerHTML = `
-        <img class="poster" src="${m.poster}" alt="${m.title}"
-             onerror="this.style.opacity=0.3">
+        ${posterHTML(m.poster, m.title)}
         <div class="info">
           <h2>${m.title}</h2>
           <div class="theater">ณ ห้องศูนย์เพื่อนใจ ชมรมทูบีนัมเบอร์วัน โรงเรียนประโคนชัยพิทยาคม</div>
           <div class="badges">
             <span class="badge">${m.minutes} min</span>
-            <span class="badge age">${m.age}</span>
+            <span class="badge">${m.age}</span>
             <span class="badge">${m.lang}</span>
             <span class="badge">${m.quality}</span>
           </div>
-          <div class="showtimes">
-            ${m.times.map(t => `<span class="time">${t}</span>`).join("")}
-          </div>
+          <div class="showtimes">${m.times.map(t => `<span class="time">${t}</span>`).join("")}</div>
         </div>`;
       moviesEl.appendChild(el);
     });
