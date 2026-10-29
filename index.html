@@ -18,7 +18,7 @@
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
   html, body {
-    height: 100%;
+    min-height: 100%;
     background: #000;
     color: #fff;
     font-family: var(--font-ui);
@@ -28,22 +28,22 @@
 
   body { min-height: 100dvh; position: relative; overflow-x: hidden; }
 
-  /* ---------- วิดีโอพื้นหลัง ---------- */
+  /* ---------- วิดีโอพื้นหลัง (ความชัด 80%) ---------- */
   .bg-video {
     position: fixed;
-    inset: 0;
-    width: 100%;
-    height: 100%;
+    top: 0; left: 0;
+    width: 100vw;
+    height: 100dvh;
     object-fit: cover;
     z-index: -2;
-    opacity: 0.35;
+    opacity: 0.8;
     pointer-events: none;
   }
   .bg-overlay {
     position: fixed;
     inset: 0;
     z-index: -1;
-    background: linear-gradient(rgba(0,0,0,.6), rgba(0,0,0,.92));
+    background: rgba(0,0,0,.35);
     pointer-events: none;
   }
   @media (prefers-reduced-motion: reduce) {
@@ -152,16 +152,17 @@
     padding: 16px 0;
     border-bottom: 1px solid rgba(255,255,255,.12);
   }
+  /* กรอบโปสเตอร์ปรับตามขนาดรูปจริง ไม่ครอบ/ตัดขอบ */
   .poster-wrap {
     flex: 0 0 clamp(96px, 32vw, 140px);
-    aspect-ratio: 7 / 10;
     border: 3px solid transparent;
     border-radius: 4px;
-    background: linear-gradient(#111,#111) padding-box,
+    background: linear-gradient(#000,#000) padding-box,
                 linear-gradient(#4aa3d6, #8ee07a) border-box;
     overflow: hidden;
+    line-height: 0;
   }
-  .poster { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .poster { width: 100%; height: auto; display: block; }
   .info { flex: 1; min-width: 0; }
   .info h2 {
     font-size: clamp(18px, 5vw, 24px);
@@ -225,12 +226,11 @@
 
 <script>
   // ===== ตั้งค่า =====
-  const VIDEO_SRC  = "video/background.mp4";  // วิดีโอพื้นหลัง
-  const POSTER_DIR = "poster/";              // โฟลเดอร์โปสเตอร์
-  const POSTER_EXT = ".jpg";                 // นามสกุลไฟล์โปสเตอร์ (1.jpg ถึง 8.jpg)
+  const VIDEO_SRC  = "video/background.mp4";
+  const POSTER_DIR = "poster/";
+  const POSTER_EXT = ".jpg";
 
   // ===== ข้อมูลหนัง =====
-  // poster = เลขไฟล์โปสเตอร์ (1–8) ระบบจะต่อเป็น poster/1.jpg ให้เอง
   const schedule = [
     {
       date: "2026-10-30", label: "30 ต.ค.", dateText: "วันศุกร์ 30 ตุลาคม 2569",
@@ -267,14 +267,20 @@
   const moviesEl = document.getElementById("movies");
   const bgVideo = document.getElementById("bgVideo");
 
-  // ถ้าวิดีโอโหลดไม่ได้ ซ่อนไว้ (พื้นหลังดำยังใช้งานได้)
-  bgVideo.addEventListener("error", () => { bgVideo.style.display = "none"; }, true);
+  // ตั้งค่าแหล่งวิดีโอด้วย JS เพื่อให้โหลดใหม่ได้แน่นอนบน iOS
+  bgVideo.src = VIDEO_SRC;
+  bgVideo.load();
+  const tryPlay = () => bgVideo.play().catch(() => {});
+  tryPlay();
+  document.addEventListener("touchstart", tryPlay, { once: true, passive: true });
 
-  // โปสเตอร์: ถ้าโหลดไม่ได้ จะคงกรอบเทาไว้ ไม่ลบทิ้ง
+  // ถ้าวิดีโอโหลดไม่ได้ ซ่อนไว้ (พื้นหลังดำยังใช้งานได้)
+  bgVideo.addEventListener("error", () => { bgVideo.style.display = "none"; });
+
   function posterHTML(file, title) {
     return `<div class="poster-wrap"><img class="poster" src="${POSTER_DIR}${file}${POSTER_EXT}"
               alt="${title}" loading="lazy" decoding="async"
-              onerror="this.style.display='none'; this.parentNode.style.background='#222';"></div>`;
+              onerror="this.parentNode.style.background='#222'; this.style.display='none';"></div>`;
   }
 
   function render(index) {
